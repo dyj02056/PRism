@@ -1,3 +1,5 @@
+from typing import Any
+
 from arq.connections import RedisSettings
 
 from app.core.config import get_settings
@@ -7,7 +9,7 @@ from app.worker.tasks import MAX_TRIES, run_review
 settings = get_settings()
 
 
-async def startup(ctx: dict) -> None:
+async def startup(ctx: dict[str, Any]) -> None:
     setup_logging()
 
 

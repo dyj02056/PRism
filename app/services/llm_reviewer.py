@@ -98,7 +98,8 @@ def _parse_llm_json(text: str) -> dict[str, Any]:
     if text.startswith("```"):
         text = re.sub(r"^```(?:json)?\s*", "", text)
         text = re.sub(r"\s*```$", "", text)
-    return json.loads(text)
+    data: dict[str, Any] = json.loads(text)
+    return data
 
 
 class LLMReviewer:

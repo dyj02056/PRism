@@ -32,7 +32,7 @@ def _parse_pr_event(payload: dict[str, Any]) -> tuple[int, str, int, str, str] |
     head_sha = head.get("sha")
     title = pr.get("title") or ""
 
-    if not all([github_repo_id, full_name, number, head_sha]):
+    if github_repo_id is None or number is None or not full_name or not head_sha:
         return None
 
     return int(github_repo_id), str(full_name), int(number), str(head_sha), str(title)

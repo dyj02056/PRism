@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,7 +13,7 @@ router = APIRouter(prefix="/repositories", tags=["repositories"])
 @router.get("")
 async def list_repositories(
     session: AsyncSession = Depends(get_db),
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     result = await session.execute(select(Repository).order_by(Repository.id.desc()))
     repos = result.scalars().all()
     return [
@@ -32,7 +34,7 @@ async def list_repo_reviews(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     session: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     repo = await session.get(Repository, repo_id)
     if repo is None:
         raise HTTPException(

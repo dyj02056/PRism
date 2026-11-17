@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from arq import create_pool
 from arq.connections import RedisSettings
@@ -20,7 +21,7 @@ router = APIRouter(tags=["reviews"])
 async def get_review(
     review_id: int,
     session: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     result = await session.execute(
         select(Review).where(Review.id == review_id).options(selectinload(Review.comments))
     )
@@ -59,7 +60,7 @@ async def get_review(
 async def retry_review(
     review_id: int,
     session: AsyncSession = Depends(get_db),
-) -> dict:
+) -> dict[str, Any]:
     """Re-queue a failed review. Only failed reviews can be retried."""
     result = await session.execute(
         select(Review)
