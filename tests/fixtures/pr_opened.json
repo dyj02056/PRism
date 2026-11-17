@@ -1,0 +1,22 @@
+{
+  "action": "opened",
+  "number": 42,
+  "pull_request": {
+    "number": 42,
+    "title": "Add feature X",
+    "head": {
+      "sha": "abc123def4567890abcdef1234567890abcdef12"
+    },
+    "base": {
+      "ref": "main"
+    }
+  },
+  "repository": {
+    "id": 123456789,
+    "full_name": "acme/demo-repo",
+    "name": "demo-repo"
+  },
+  "sender": {
+    "login": "octocat"
+  }
+}
