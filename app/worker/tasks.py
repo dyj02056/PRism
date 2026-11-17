@@ -1,5 +1,6 @@
 import logging
 from datetime import UTC, datetime
+from typing import Any
 
 from arq import Retry
 from sqlalchemy import select
@@ -7,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import PullRequest, Repository, Review, ReviewComment
 from app.db.session import AsyncSessionLocal
-from app.services.github_client import get_github_client
+from app.services.github_client import GitHubClient, get_github_client
 from app.services.llm_reviewer import ReviewCommentOut, get_llm_reviewer
 
 logger = logging.getLogger(__name__)
@@ -106,7 +107,11 @@ def _format_github_body(summary: str, comments: list[ReviewCommentOut]) -> str:
 
 
 async def _post_to_github(
-    github, full_name: str, pr_number: int, summary: str, comments: list[ReviewCommentOut]
+    github: GitHubClient,
+    full_name: str,
+    pr_number: int,
+    summary: str,
+    comments: list[ReviewCommentOut],
 ) -> None:
     """Post line comments as a PR review; fall back to a single issue comment.
 
@@ -135,14 +140,14 @@ async def _post_to_github(
 
 
 async def run_review(
-    ctx: dict,
+    ctx: dict[str, Any],
     github_repo_id: int,
     full_name: str,
     pr_number: int,
     head_sha: str,
     title: str = "",
     review_id: int | None = None,
-) -> dict:
+) -> dict[str, Any]:
     """Full pipeline: review row → fetch diff → LLM → save → comment on PR.
 
     On failure the job is retried (arq ``Retry``) up to MAX_TRIES with linear backoff,
@@ -161,12 +166,12 @@ async def run_review(
         try:
             repo = await _get_or_create_repo(session, github_repo_id, full_name)
             pr = await _get_or_create_pr(session, repo, pr_number, head_sha, title)
-            review = await _get_or_create_review(session, pr, review_id)
-            review.status = "running"
-            review.error = None
-            review.finished_at = None
+            prepared = await _get_or_create_review(session, pr, review_id)
+            prepared.status = "running"
+            prepared.error = None
+            prepared.finished_at = None
             await session.commit()
-            review_id = review.id
+            review_id = prepared.id
             logger.info("Review %s marked running (pr_id=%s)", review_id, pr.id)
         except Exception:
             await session.rollback()

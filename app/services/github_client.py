@@ -59,7 +59,8 @@ class GitHubClient:
                 json={"body": body},
             )
             resp.raise_for_status()
-            return resp.json()
+            data: dict[str, Any] = resp.json()
+            return data
 
     async def create_pull_review(
         self,
@@ -86,7 +87,8 @@ class GitHubClient:
                 json=payload,
             )
             resp.raise_for_status()
-            return resp.json()
+            data: dict[str, Any] = resp.json()
+            return data
 
 
 def get_github_client() -> GitHubClient:

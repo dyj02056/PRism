@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +11,7 @@ router = APIRouter(prefix="/stats", tags=["stats"])
 
 
 @router.get("/summary")
-async def stats_summary(session: AsyncSession = Depends(get_db)) -> dict:
+async def stats_summary(session: AsyncSession = Depends(get_db)) -> dict[str, Any]:
     """Aggregate review counts, severity distribution, and token usage per repository."""
 
     # Per-repo review counts + token sums
